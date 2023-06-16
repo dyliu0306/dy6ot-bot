@@ -15,19 +15,9 @@ import string
 import demoji
 from datetime import datetime
 import pytz
-import logging
+import func
 
-logger = logging.getLogger('discord')
-logger.setLevel(logging.DEBUG)
-handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter(
-    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
-logger.addHandler(handler)
 
-tw = pytz.timezone('Asia/Taipei')
-twtime = datetime.now(tw)
-cutime = twtime.strftime("%F %H:%M:%S")
 
 intents = discord.Intents.all()
 intents.message_content = True
@@ -57,49 +47,42 @@ async def on_raw_reaction_add(payload):
     user = bot.get_user(payload.user_id)
     if str(payload.emoji) == "\U0001F621":
         await message.add_reaction("<:angry:1104806970785018039>")
-    print(str(payload.emoji))
-    if str(payload.emoji) == "✴️":
-        print("123")
-        await message.delete()
     if str(payload.emoji) == "\U0001F6D0":
         await message.remove_reaction("\U0001F6D0", user)
         await message.add_reaction("<:lao1:1102149331101954058>")
         await message.add_reaction("<:lao2:1102149279746891786>")
         await message.add_reaction("<:dalaoooo:1070885764608573532>")
-
     if str(payload.emoji) == "\U000026D4":
         for r in message.reactions:
             async for user in r.users():
                 if user.bot == True:
                     await message.remove_reaction(r.emoji, user)
         await message.remove_reaction("\U000026D4", user)
-
     if str(payload.emoji.name) == "EZ_dy" and user == pvpemo1:
-        await message.clear_reaction(emo("ex"))
-        await message.clear_reaction(emo("hd"))
+        await message.clear_reaction(func.emo("ex"))
+        await message.clear_reaction(func.emo("hd"))
         pvpemo1 = "0"
         pvpemo2 = 1
         pvpemo3 = "easy"
     elif str(payload.emoji.name) == "HD_dy" and user == pvpemo1:
-        await message.clear_reaction(emo("ex"))
-        await message.clear_reaction(emo("ez"))
+        await message.clear_reaction(func.emo("ex"))
+        await message.clear_reaction(func.emo("ez"))
         pvpemo1 = "0"
         pvpemo2 = 1
         pvpemo3 = "hard"
     elif str(payload.emoji.name) == "EX_dy" and user == pvpemo1:
-        await message.clear_reaction(emo("ez"))
-        await message.clear_reaction(emo("hd"))
+        await message.clear_reaction(func.emo("ez"))
+        await message.clear_reaction(func.emo("hd"))
         pvpemo1 = "0"
         pvpemo2 = 1
         pvpemo3 = "extreme"
-
     if str(payload.emoji.name) == "ZH_dy" and user == helpemo1:
-        await message.clear_reaction(emo("en"))
+        await message.clear_reaction(func.emo("en"))
         helpemo1 = "0"
         helpemo2 = 1
         helpemo3 = 1
     elif str(payload.emoji.name) == "EN_dy" and user == helpemo1:
-        await message.clear_reaction(emo("zh"))
+        await message.clear_reaction(func.emo("zh"))
         helpemo1 = "0"
         helpemo2 = 1
         helpemo3 = 2
@@ -113,16 +96,8 @@ async def on_message(message):
     global helpemo1
     global helpemo2
     global helpemo3  # 中文=1 英文=2
-    Help = ["電", "佬", "強", "神", "830395796490158081"]
-    tx2 = ["dyliu"]
-    tx3 = 0  # 關鍵字判定
     if message.author == bot.user:
         return
-    if message.content.startswith('zz'):
-        tmp = message.content.split(" ", 2)
-        usname = ment(message.author, tmp[1], message.author.guild)
-        await message.channel.send(usname)
-
     if message.content.startswith('說'):
         # 分割訊息成兩份
         tmp = message.content.split("，", 2)
@@ -133,21 +108,30 @@ async def on_message(message):
             await tmg.delete()
             return
         else:
-            for num in tx2:
-                for words in Help:
-                    if message.content.find(words) >= 0 and message.content.find(num) >= 0 and tx3 < 1:
-                        await message.delete()
-                        tx3 = 2
-            if tx3 > 1:
-                nmg = await message.channel.send(f"{message.author.mention}自認是神<:bowdown:889333644202754058><:bowdown:889333644202754058><:bowdown:889333644202754058>")
-                await nmg.add_reaction("<:bowdown:889333644202754058>")
+            tx3 = 0
             if tx3 < 1:
                 await message.delete()
                 await message.channel.send(tmp[1])
-                te = ment2(message.author, tmp[1], message.author.guild)
+                te = func.ment2(message.author, tmp[1], message.author.guild)
+                func.say_txt(message.author, str(te))
+                return
+    if message.content.startswith('say'):
+        # 分割訊息成兩份
+        tmp = message.content.split(",", 2)
+        # 如果分割後串列長度只有1
+        if len(tmp) == 1:
+            tmg = await message.channel.send("What do you want me to say？")
+            await asyncio.sleep(2)
+            await tmg.delete()
+            return
+        else:
+            tx3 = 0
+            if tx3 < 1:
+                await message.delete()
+                await message.channel.send(tmp[1])
+                te = func.ment2(message.author, tmp[1], message.author.guild)
                 print(te)
-                say_txt(message.author, str(te))
-
+                func.say_txt(message.author, str(te))
                 return
     if message.content.startswith('dy'):
         # 分割訊息成兩份
@@ -162,16 +146,16 @@ async def on_message(message):
                 helpemo3 = 0
                 x3 = 1
                 em1 = await message.channel.send('> 請選擇語言 (select language)')
-                await em1.add_reaction(emo('zh'))
-                await em1.add_reaction(emo('en'))
-                await asyncio.sleep(5)
+                await em1.add_reaction(func.emo('zh'))
+                await em1.add_reaction(func.emo('en'))
+                await asyncio.sleep(3)
                 if helpemo2 == 1:
                     if helpemo3 == 1:
                         embed = discord.Embed(title="指令列表：",
-                                              description='**[說，<要機器人說的內容>]**\n\n**[dy rate <譜面id>]**：查看譜面評分詳情\n\n**[dy ping]**：延遲間隔\n\n**[dy ctd <cytoid id>]**：近期遊玩記錄', color=0xffff37)
+                                              description="**[說，<要機器人說的內容>]**\n\n**[dy rate <譜面id>]**：查看譜面評分詳情\n\n**[dy ping]**：延遲間隔\n\n**[dy random]**：隨機產生Cytoid關卡id\n\n**[dy ctd <cytoid id>]**：近期遊玩記錄\n\n**[dy best <cytoid id> <level id>]**：最佳遊玩記錄\n\n**[dy pvp <cytoid id> <cytoid id> <level id>]**：Cytoid雙人對戰（遊玩同個關卡後再輸送指令）\n\n**[bind ctd <cytoid id>]**：綁定Cytoid帳戶 (使用 'me' 或者 '@someone' 取代 <cytoid id>)\n\n**[unbind ctd]**：解除綁定Cytoid帳戶", color=0xffff37)
                     elif helpemo3 == 2:
-                        embed = discord.Embed(title="指令列表：",
-                                              description="**[say,<what you want dy6ot to say>]**\n\n**[dy rate <level id>]**：check level's rating composing\n\n**[dy ping]**：return ping", color=0xffff37)
+                        embed = discord.Embed(title="Commands List：",
+                                              description="**[say,<what you want dy6ot to say>]**\n\n**[dy rate <level id>]**：check level's rating composing\n\n**[dy ping]**：return ping\n\n**[dy random]**：Randomly generate Cytoid level id\n\n**[dy ctd <cytoid id>]**：Last play record\n\n**[dy best <cytoid id> <level id>]**：Best play record\n\n**[dy pvp <cytoid id> <cytoid id> <level id>]**：Cytoid pvp function（Played the same level before sending command）\n\n**[bind ctd <cytoid id>]**：Bind your Cytoid account (Use 'me' or '@someone' replace <cytoid id>)\n\n**[unbind ctd]**：unbind your Cytoid account", color=0xffff37)
                     else:
                         await message.channel.send("發生未知錯誤 (unknown error)")
                         x3 = 0
@@ -195,15 +179,18 @@ async def on_message(message):
                     url2 = 'https://services.cytoid.io/levels/' + leveluid + ''
                     res2 = requests.get(url2)
                     jsonstr2 = json.loads(res2.content.decode('utf-8'))
-                    if jsonstr2["duration"] >= 200 or "cy7" in leveluid:
+                    if jsonstr2["duration"] >= 240:
                         x2 = x2+1
                 cha1 = 0
                 dif1 = ""
                 while cha1 < len(jsonstr2["charts"]):
                     dif1 = f'{dif1} {jsonstr2["charts"][cha1]["type"]} {jsonstr2["charts"][cha1]["difficulty"]} /'
                     cha1 += 1
-                dif1 = re.sub('/$', " ", dif1)
-                await message.channel.send(f'{leveluid}\n{dif1}')
+                dif1 = re.sub('/$', "", dif1)
+                dif1 = re.sub('^ ', "", dif1)
+                embed = discord.Embed(title=leveluid, description=f'**Title**\n{jsonstr2["title"]}\n\n**Difficulty**\n{dif1}', color=0xffff28)
+                embed.set_thumbnail(url=jsonstr2['cover']['cover'])
+                await message.channel.send(embed=embed)
         if len(tmp) == 3:
             if tmp[1].startswith('rate'):
                 x1 = 1
@@ -222,7 +209,7 @@ async def on_message(message):
                 if tmp[2].isupper() == True:
                     x1 = 0
                 if x1 == 0:
-                    await message.channel.send('不要亂輸入:rage:')
+                    await message.channel.send('level id輸入錯誤 (keyword error)')
                 if x1 == 1:
                     url = 'https://services.cytoid.io/levels/' + \
                         tmp[2]+'/ratings'
@@ -231,9 +218,9 @@ async def on_message(message):
                     avg = jsonstr["average"]
                     if jsonstr["total"]-1 < 0:
                         avg = 0
-                        await message.channel.send('譜面無人評分或id輸入不正確')
+                        await message.channel.send('譜面無人評分或id輸入不正確 (id wrong or no one rate)')
                         return 0
-                    tmg = await message.channel.send('正在查詢...')
+                    tmg = await message.channel.send('Search...')
                     await asyncio.sleep(3)
                     await tmg.delete()
                     clr = 0xFFFFFF
@@ -252,8 +239,8 @@ async def on_message(message):
                         clr = 0x4DFFFF
                     if jsonstr["total"]-1 < 0:
                         clr = 0xFFFFFF
-                    embed = discord.Embed(title="譜面評分詳情",
-                                          description=f'總評分數： {jsonstr["total"]}\n平均分數： {round(avg/2,3)}\n分數構成： {jsonstr["distribution"]}', color=clr)
+                    embed = discord.Embed(title="Rates:",
+                                          description=f'Total rates： {jsonstr["total"]}\nAvg rate： {round(avg/2,3)}\nRates list： {jsonstr["distribution"]}\n⠀⠀⠀⠀⠀⠀ ⠀[0.5>>>>>>>>>>>>>5]', color=clr)
                     await message.channel.send(embed=embed)
             if tmp[1].startswith('plays'):
                 x1 = 1
@@ -272,26 +259,22 @@ async def on_message(message):
                 if tmp[2].isupper() == True:
                     x1 = 0
                 if x1 == 0:
-                    await message.channel.send('不要亂輸入:rage:')
+                    await message.channel.send('id錯誤 (id wrong)')
                 if x1 == 1:
                     url = 'https://cytoid.io/levels?owner=' + \
                         tmp[2]+'&page=1&sort=plays&order=desc&category=all'
                     res = requests.get(url)
                     res = res.content.decode()
-
                     str1 = res.split("<script>", 2)
                     str2 = str1[1].split("</script>", 2)
                     str3 = str2[0].split("layout:\"default\",data:[", 2)
                     str4 = str3[1].split("],fetch:", 2)
-
                     if "levels:[]" in str4[0]:
-                        await message.channel.send('使用者id輸入不正確或此人無上傳譜面')
+                        await message.channel.send('使用者id輸入不正確或此人無上傳譜面 (id wrong or no result)')
                         return 0
-
                     tmg = await message.channel.send('正在查詢...')
                     await asyncio.sleep(3)
                     await tmg.delete()
-
                     play = re.findall('plays:([0-9]*)', str4[0])
                     down = re.findall('downloads:([0-9]*)', str4[0])
                     raw_uid = re.findall('uid:"([0-9a-z._-]*)"', str4[0])
@@ -307,7 +290,6 @@ async def on_message(message):
                     res1 = requests.get(url1)
                     js1 = json.loads(res1.content.decode('utf-8'))
                     uid3 = js1["title"]
-
                     embed = discord.Embed(
                         title=f"{tmp[2]}的譜面遊玩數Top3:", description=f'Top1: {uid1}\n遊玩數： {play[0]}\n下載數： {down[0]}\n\nTop2: {uid2}\n遊玩數： {play[1]}\n下載數： {down[1]}\n\nTop3: {uid3}\n遊玩數： {play[2]}\n下載數： {down[2]}', color=0x00ffff)
                     await message.channel.send(embed=embed)
@@ -319,25 +301,25 @@ async def on_message(message):
                     f'https://services.cytoid.io/profile/{tmp[2]}')
                 check1a = json.loads(check1.content.decode('utf-8'))
                 if 'me' in tmp[2] or re.match(r'<[@!]+[0-9]+>', tmp[2]):
-                    tmp[2] = ment(message.author, tmp[2], message.author.guild)
-                    tmp[2] = get_ctdid(tmp[2])
+                    tmp[2] = func.ment(message.author, tmp[2], message.author.guild)
+                    tmp[2] = func.get_ctdid(tmp[2])
                     if 'e404' in tmp[2]:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                         x1 = 0
                 elif 'statusCode' in check1a:
                     if check1a['statusCode'] == 404:
                         x1 = 0
-                        await message.channel.send('Cytoid ID未正確輸入')
+                        await message.channel.send('Cytoid ID未正確輸入 (keyword error)')
                 # end
                 if x1 > 0:
                     p1 = requests.get('https://services.cytoid.io/graphql', params={"query": f"""query StudioAnalytics($uid: String = "{tmp[2]}") {{
   profile(uid: $uid) {{
     recentRecords(limit: 1) {{
-      ...RecordFragment
+      ...Recordment
     }}
   }}
 }}
-fragment RecordFragment on UserRecord{{
+fragment Recordment on UserRecord{{
   chart {{
         difficulty
         type
@@ -348,6 +330,7 @@ fragment RecordFragment on UserRecord{{
         }}
         notesCount
       }}
+      date
       mods
       score
       accuracy
@@ -362,6 +345,7 @@ fragment RecordFragment on UserRecord{{
       }}
 }}"""})
                     user1 = json.loads(p1.content.decode('utf-8'))
+                    date1 = user1["data"]["profile"]["recentRecords"][0]["date"]
                     score1 = user1["data"]["profile"]["recentRecords"][0]["score"]
                     acc1 = format(
                         user1["data"]["profile"]["recentRecords"][0]["accuracy"]*100, '.3f')
@@ -374,13 +358,168 @@ fragment RecordFragment on UserRecord{{
                     miss1 = user1["data"]["profile"]["recentRecords"][0]["details"]["miss"]
                     title1 = user1["data"]["profile"]["recentRecords"][0]["chart"]["level"]["title"]
                     uid1 = user1["data"]["profile"]["recentRecords"][0]["chart"]["level"]["uid"]
-                    name1 = user1["data"]["profile"]["recentRecords"][0]["chart"]["name"]
+                    name1 = user1["data"]["profile"]["recentRecords"][0]["chart"]["type"]
                     diff1 = user1["data"]["profile"]["recentRecords"][0]["chart"]["difficulty"]
-                    if name1 == None:
-                        name1 = title1
-                    embed = discord.Embed(
-                        title=f"{tmp[2]}'s recent play", description=f'**Song Title**\n{title1}⠀⠀({uid1})\n\n**Type (diff)**\n{name1} ⠀(Lv. {diff1})\n\n**Score (Acc)**\n{score1}⠀⠀({acc1}%)\n\n**Rating**\n{rating1}\n\n**Notes Judgement**\n{perfect1}p / {great1}gr / {good1}g / {bad1}b / {miss1}m', color=0x00ffff)
+                    url = 'https://services.cytoid.io/levels/' + uid1
+                    res = requests.get(url)
+                    jsonstr1 = json.loads(res.content.decode('utf-8'))
+                    pic1=jsonstr1['cover']['cover']
+                    if 'ex' in name1:
+                        name1 = 'EX'
+                    if 'ar' in name1:
+                        name1 = 'HD'
+                    if 'ea' in name1:
+                        name1 = 'EZ'
+                    embed = discord.Embed(title=f"{tmp[2]}'s recent play", description=f'**Song Title**\n{title1}\n({name1} {diff1})\n\n**Score (Acc)**\n{score1}⠀⠀({acc1}%)\n\n**Rating**\n{rating1}\n\n**Notes Judgement**\n{perfect1}p / {great1}gr / {good1}g / {bad1}b / {miss1}m\n\n**Date**\n{date1} (UTC+0)', color=0x00ffff)
+                    embed.set_footer(text=f"{uid1}")
+                    embed.set_thumbnail(url=f'{pic1}')
                     await message.channel.send(embed=embed)
+        if len(tmp) == 4:
+            if tmp[1].startswith('best'):
+                x1 = 1
+                x3 = 1
+                # code copyright belongs to akari-bot[github.com/Teahouse-Studios/akari-bot/blob/master/modules/cytoid/rating.py]
+                check1 = requests.get(
+                    f'https://services.cytoid.io/profile/{tmp[2]}')
+                check1a = json.loads(check1.content.decode('utf-8'))
+                if 'me' in tmp[2] or re.match(r'<[@!]+[0-9]+>', tmp[2]):
+                    u1 = func.ment(message.author, tmp[2], message.author.guild)
+                    tmp[2] = func.get_ctdid(u1)
+                    if 'e404' in tmp[2]:
+                        await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
+                        x1 = 0
+                elif 'statusCode' in check1a:
+                    if check1a['statusCode'] == 404:
+                        x1 = 0
+                        await message.channel.send('Cytoid ID未正確輸入 (keyword error)')
+                check2 = requests.get(
+                    f'https://services.cytoid.io/levels/{tmp[3]}')
+                check2a = json.loads(check2.content.decode('utf-8'))
+                if 'statusCode' in check2a:
+                    if check2a['statusCode'] == 404:
+                        x1 = 0
+                        await message.channel.send('Level ID未正確輸入 (keyword error)')
+                # end
+                url = 'https://services.cytoid.io/levels/' + tmp[3]
+                res = requests.get(url)
+                jsonstr = json.loads(res.content.decode('utf-8'))
+                c1=1
+                if c1==1 and x1==1:
+                    if len(jsonstr["charts"]) > 2:
+                        pvpemo1 = message.author
+                        pvpemo2 = 0
+                        em1 = await message.channel.send('> 請選擇難度 (select diff type)')
+                        await em1.add_reaction(func.emo('ez'))
+                        await em1.add_reaction(func.emo('hd'))
+                        await em1.add_reaction(func.emo('ex'))
+                        await asyncio.sleep(5)
+                        if pvpemo2 == 0:
+                            await em1.delete()
+                            await message.channel.send('選擇時間超時 (time out)')
+                            x1 = 0
+                    if len(jsonstr["charts"]) > 2:
+                        for i in range(3):
+                            if pvpemo3 in jsonstr["charts"][i]["type"]:
+                                type = jsonstr["charts"][i]["type"]
+                                diff = jsonstr["charts"][i]["difficulty"]
+                                break
+                    elif len(jsonstr["charts"]) > 1:
+                        chpe = ["1", "2"]
+                        for i in range(2):
+                            chpe[i] = jsonstr["charts"][i]["type"]
+                        if 'extreme' not in chpe:
+                            pvpemo1 = message.author
+                            pvpemo2 = 0
+                            em1 = await message.channel.send('> 請選擇難度 (select diff type)')
+                            await em1.add_reaction(func.emo('ez'))
+                            await em1.add_reaction(func.emo('hd'))
+                            await asyncio.sleep(8)
+                            if pvpemo2 == 1:
+                                for i in range(2):
+                                    if pvpemo3 in jsonstr["charts"][i]["type"]:
+                                        pvpemo3 = "0"
+                                        type = jsonstr["charts"][i]["type"]
+                                        diff = jsonstr["charts"][i]["difficulty"]
+                            else:
+                                await em1.delete()
+                                await message.channel.send('選擇時間超時 (time out)')
+                                x1 = 0
+                        elif 'hard' not in chpe:
+                            pvpemo1 = message.author
+                            pvpemo2 = 0
+                            em1 = await message.channel.send('> 請選擇難度 (select diff type)')
+                            await em1.add_reaction(func.emo('ez'))
+                            await em1.add_reaction(func.emo('ex'))
+                            await asyncio.sleep(8)
+                            if pvpemo2 == 1:
+                                for i in range(2):
+                                    if pvpemo3 in jsonstr["charts"][i]["type"]:
+                                        pvpemo3 = "0"
+                                        type = jsonstr["charts"][i]["type"]
+                                        diff = jsonstr["charts"][i]["difficulty"]
+                                pvpemo3 = "0"
+                            else:
+                                await em1.delete()
+                                await message.channel.send('選擇時間超時 (time out)')
+                                x1 = 0
+                        elif 'easy' not in chpe:
+                            pvpemo1 = message.author
+                            pvpemo2 = 0
+                            em1 = await message.channel.send('> 請選擇難度 (select diff type)')
+                            await em1.add_reaction(func.emo('hd'))
+                            await em1.add_reaction(func.emo('ex'))
+                            await asyncio.sleep(8)
+                            if pvpemo2 == 1:
+                                for i in range(2):
+                                    if pvpemo3 in jsonstr["charts"][i]["type"]:
+                                        pvpemo3 = "0"
+                                        type = jsonstr["charts"][i]["type"]
+                                        diff = jsonstr["charts"][i]["difficulty"]
+                                pvpemo3 = "0"
+                            else:
+                                await em1.delete()
+                                await message.channel.send('選擇時間超時 (time out)')
+                                x1 = 0
+                    else:
+                        type = jsonstr["charts"][0]["type"]
+                        diff = jsonstr["charts"][0]["difficulty"]
+                if x1 == 1:
+                    x2 = 1
+                    str1 = requests.get(
+                        f'https://services.cytoid.io/levels/{tmp[3]}/charts/{type}/records?limit=20000')
+
+                    user1 = json.loads(str1.content.decode('utf-8'))
+                    x3 = 1
+                    if "statusCode" in user1:
+                        if user1['statusCode'] == 404:
+                            x2 = 0
+                            x3 = 0
+                            await message.channel.send("沒有此Diff type，請重新確認 (d-type doesn't exist in level)")
+                    if x3 > 0:
+                        for i in range(len(user1)):
+                            if tmp[2] == user1[i]["owner"]["uid"]:
+                                score1 = user1[i]["score"]
+                                date1 = f'{user1[i]["date"]}  (UTC+0)'
+                                acc1 = format(user1[i]["accuracy"]*100, '.3f')
+                                perfect1 = user1[i]["details"]["perfect"]
+                                great1 = user1[i]["details"]["great"]
+                                good1 = user1[i]["details"]["good"]
+                                bad1 = user1[i]["details"]["bad"]
+                                miss1 = user1[i]["details"]["miss"]
+                                rank1 = i+1
+                                x2 = 1
+                                break
+                            else:
+                                x2 = 2
+
+                        x3 = 1
+                    if x2 == 1:
+                        embed = discord.Embed(
+                            title=f"{tmp[2]}'s best score", description=f'**Song Title**\n{check2a["title"]}\n\n**Score (Acc)**\n{score1}⠀⠀({acc1}%)\n\n**Notes Judgement**\n{perfect1}p / {great1}gr / {good1}g / {bad1}b / {miss1}m\n\n**RANK**\n#{rank1}\n⠀⠀', color=0x27ff27)
+                        embed.set_footer(text=date1)
+                        await message.channel.send(embed=embed)
+                    else:
+                        await message.channel.send("沒有遊玩記錄 (no record)")
         if len(tmp) == 5:
             if tmp[1].startswith('pvp'):
                 x1 = 1
@@ -390,28 +529,28 @@ fragment RecordFragment on UserRecord{{
                     f'https://services.cytoid.io/profile/{tmp[2]}')
                 check1a = json.loads(check1.content.decode('utf-8'))
                 if 'me' in tmp[2] or re.match(r'<[@!]+[0-9]+>', tmp[2]):
-                    tmp[2] = ment(message.author, tmp[2], message.author.guild)
-                    tmp[2] = get_ctdid(tmp[2])
+                    tmp[2] = func.ment(message.author, tmp[2], message.author.guild)
+                    tmp[2] = func.get_ctdid(tmp[2])
                     if 'e404' in tmp[2]:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                         x1 = 0
                 elif 'statusCode' in check1a:
                     if check1a['statusCode'] == 404:
                         x1 = 0
-                        await message.channel.send('玩家一Cytoid ID未正確輸入')
+                        await message.channel.send('玩家一Cytoid ID未正確輸入 (keyword error)')
                 check2 = requests.get(
                     f'https://services.cytoid.io/profile/{tmp[3]}')
                 check2a = json.loads(check2.content.decode('utf-8'))
                 if 'me' in tmp[3] or re.match(r'<[@!]+[0-9]+>', tmp[3]):
-                    tmp[3] = ment(message.author, tmp[3], message.author.guild)
-                    tmp[3] = get_ctdid(tmp[3])
+                    tmp[3] = func.ment(message.author, tmp[3], message.author.guild)
+                    tmp[3] = func.get_ctdid(tmp[3])
                     if 'e404' in tmp[3]:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                         x1 = 0
                 elif 'statusCode' in check2a:
                     if check2a['statusCode'] == 404:
                         x1 = 0
-                        await message.channel.send('玩家二Cytoid ID未正確輸入')
+                        await message.channel.send('玩家二Cytoid ID未正確輸入 (keyword error)')
                 # end
                 if x1 == 1:
                     check1 = requests.get(
@@ -424,21 +563,17 @@ fragment RecordFragment on UserRecord{{
                     url = 'https://services.cytoid.io/levels/' + tmp[4]
                     res = requests.get(url)
                     jsonstr = json.loads(res.content.decode('utf-8'))
-                    if jsonstr["duration"] >= 600:
-                        await message.channel.send(f'譜面時長超出上限 ({jsonstr["duration"]}秒)')
-                        x3 = 0
-
-                    print(len(jsonstr["charts"]))
+                    
                     if len(jsonstr["charts"]) > 2:
                         pvpemo1 = message.author
                         pvpemo2 = 0
                         em1 = await message.channel.send('> 請選擇難度 (select diff type)')
-                        await em1.add_reaction(emo('ez'))
-                        await em1.add_reaction(emo('hd'))
-                        await em1.add_reaction(emo('ex'))
+                        await em1.add_reaction(func.emo('ez'))
+                        await em1.add_reaction(func.emo('hd'))
+                        await em1.add_reaction(func.emo('ex'))
                         await asyncio.sleep(5)
                         if pvpemo2 == 1:
-                            await message.channel.send(f'請雙方開始遊玩 **{pvpemo3}** 難度 (start game)')
+                            await message.channel.send(f'你選擇的是 **{pvpemo3}** (Your select is {pvpemo3})')
 
                         else:
                             await em1.delete()
@@ -460,11 +595,11 @@ fragment RecordFragment on UserRecord{{
                             pvpemo1 = message.author
                             pvpemo2 = 0
                             em1 = await message.channel.send('> 請選擇難度 (select diff type)')
-                            await em1.add_reaction(emo('ez'))
-                            await em1.add_reaction(emo('hd'))
+                            await em1.add_reaction(func.emo('ez'))
+                            await em1.add_reaction(func.emo('hd'))
                             await asyncio.sleep(8)
                             if pvpemo2 == 1:
-                                await message.channel.send(f'請雙方開始遊玩 **{pvpemo3}** 難度 (start game)')
+                                await message.channel.send(f'你選擇的是 **{pvpemo3}** (Your select is {pvpemo3})')
                                 for i in range(2):
                                     if pvpemo3 in jsonstr["charts"][i]["type"]:
                                         pvpemo3 = "0"
@@ -479,11 +614,11 @@ fragment RecordFragment on UserRecord{{
                             pvpemo1 = message.author
                             pvpemo2 = 0
                             em1 = await message.channel.send('> 請選擇難度 (select diff type)')
-                            await em1.add_reaction(emo('ez'))
-                            await em1.add_reaction(emo('ex'))
+                            await em1.add_reaction(func.emo('ez'))
+                            await em1.add_reaction(func.emo('ex'))
                             await asyncio.sleep(8)
                             if pvpemo2 == 1:
-                                await message.channel.send(f'請雙方開始遊玩 **{pvpemo3}** 難度 (start game)')
+                                await message.channel.send(f'你選擇的是 **{pvpemo3}** (Your select is {pvpemo3})')
                                 for i in range(2):
                                     if pvpemo3 in jsonstr["charts"][i]["type"]:
                                         pvpemo3 = "0"
@@ -499,11 +634,11 @@ fragment RecordFragment on UserRecord{{
                             pvpemo1 = message.author
                             pvpemo2 = 0
                             em1 = await message.channel.send('> 請選擇難度 (select diff type)')
-                            await em1.add_reaction(emo('hd'))
-                            await em1.add_reaction(emo('ex'))
+                            await em1.add_reaction(func.emo('hd'))
+                            await em1.add_reaction(func.emo('ex'))
                             await asyncio.sleep(8)
                             if pvpemo2 == 1:
-                                await message.channel.send(f'請雙方開始遊玩 **{pvpemo3}** 難度 (start game)')
+                                await message.channel.send(f'你選擇的是 **{pvpemo3}** (Your select is {pvpemo3})')
                                 for i in range(2):
                                     if pvpemo3 in jsonstr["charts"][i]["type"]:
                                         pvpemo3 = "0"
@@ -519,7 +654,7 @@ fragment RecordFragment on UserRecord{{
                         type = jsonstr["charts"][0]["type"]
                         diff = jsonstr["charts"][0]["difficulty"]
                         lid = jsonstr["charts"][0]["id"]
-                        await message.channel.send(f'請雙方開始遊玩** {type} **難度 (start game)')
+                        await message.channel.send('Search...')
                     if x3 >= 1:
                         length = jsonstr["duration"] + 2-jsonstr["duration"]
 
@@ -547,15 +682,15 @@ fragment RecordFragment on UserRecord{{
                             p1_path = requests.get(
                                 check1a["user"]["avatar"]["large"])
                             p1cc = Image.open(BytesIO(p1_path.content))
-                            p1img = img_circle(p1cc, 100)
+                            p1img = func.img_circle(p1cc, 100)
                             p2_path = requests.get(
                                 check2a["user"]["avatar"]["large"])
                             p2cc = Image.open(BytesIO(p2_path.content))
-                            p2img = img_circle(p2cc, 100)
+                            p2img = func.img_circle(p2cc, 100)
                             ctr_path = requests.get(
                                 jsonstr["owner"]["avatar"]["large"])
                             ctrcc = Image.open(BytesIO(ctr_path.content))
-                            ctrimg = img_circle(ctrcc, 124)
+                            ctrimg = func.img_circle(ctrcc, 124)
                             pvpimg.paste(ctrimg, box=(12, 30), mask=ctrimg)
                             pvpimg.paste(p1img, box=(65, 185), mask=p1img)
                             pvpimg.paste(p2img, box=(65, 490), mask=p2img)
@@ -570,10 +705,10 @@ fragment RecordFragment on UserRecord{{
                             f2b = ImageFont.truetype(
                                 os.path.abspath(font_path), 30)
                             f2c = ImageFont.truetype(
-                                os.path.abspath(font_path), 52)
+                                os.path.abspath(font_path), 18)
                             h1 = 21
-                            print(judge_language(jsonstr["title"]))
-                            if 'ja' in judge_language(jsonstr["title"]) or 'zh' in judge_language(jsonstr["title"]):
+                            print(func.judge_language(jsonstr["title"]))
+                            if 'ja' in func.judge_language(jsonstr["title"]) or 'zh' in func.judge_language(jsonstr["title"]):
                                 f1 = ImageFont.truetype(
                                     os.path.abspath(font_path4), 67)
                                 if len(re.findall('[^\0]', jsonstr["title"])) > 13:
@@ -582,7 +717,7 @@ fragment RecordFragment on UserRecord{{
                                     h1 = h1+round((78-size)/6)
                                     f1 = ImageFont.truetype(
                                         os.path.abspath(font_path4), size)
-                            elif 'en' in judge_language(jsonstr["title"]):
+                            elif 'en' in func.judge_language(jsonstr["title"]):
                                 f1 = ImageFont.truetype(
                                     os.path.abspath(font_path3), 80)
                                 if len(re.findall('[^\0]', jsonstr["title"])) > 24:
@@ -601,7 +736,7 @@ fragment RecordFragment on UserRecord{{
                             drawtext.text(
                                 (150, 101), tmp[4], '#ffffff', font=f2a)
                             drawtext.text(
-                                (78, 6), 'Generated by "dy6ot bot" | Based on CytoidAPI', '#ffffff', font=f2a)
+                                (150, 2), 'Generated by "dy6ot bot" | Based on CytoidAPI', '#ffffff', font=f2c)
                             a1 = 1
                         await asyncio.sleep(int(length))
                         p1 = requests.get('https://services.cytoid.io/graphql', params={"query": f"""query StudioAnalytics($uid: String = "{tmp[2]}") {{
@@ -807,8 +942,8 @@ fragment RecordFragment on UserRecord{{
                     f'https://services.cytoid.io/profile/{tmp[2]}')
                 check1a = json.loads(check1.content.decode('utf-8'))
                 if 'me' in tmp[2] or re.match(r'<[@!]+[0-9]+>', tmp[2]):
-                    tmp[2] = ment(message.author, tmp[2], message.author.guild)
-                    tmp[2] = get_ctdid(tmp[2])
+                    tmp[2] = func.ment(message.author, tmp[2], message.author.guild)
+                    tmp[2] = func.get_ctdid(tmp[2])
                     if 'e404' in tmp[2]:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                         x1 = 0
@@ -879,8 +1014,8 @@ fragment RecordFragment on UserRecord{{
                     f'https://services.cytoid.io/profile/{tmp[2]}')
                 check1a = json.loads(check1.content.decode('utf-8'))
                 if 'me' in tmp[2] or re.match(r'<[@!]+[0-9]+>', tmp[2]):
-                    tmp[2] = ment(message.author, tmp[2], message.author.guild)
-                    tmp[2] = get_ctdid(tmp[2])
+                    tmp[2] = func.ment(message.author, tmp[2], message.author.guild)
+                    tmp[2] = func.get_ctdid(tmp[2])
                     if 'e404' in tmp[2]:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                         x1 = 0
@@ -892,8 +1027,8 @@ fragment RecordFragment on UserRecord{{
                     f'https://services.cytoid.io/profile/{tmp[3]}')
                 check2a = json.loads(check2.content.decode('utf-8'))
                 if 'me' in tmp[3] or re.match(r'<[@!]+[0-9]+>', tmp[3]):
-                    tmp[3] = ment(message.author, tmp[3], message.author.guild)
-                    tmp[3] = get_ctdid(tmp[3])
+                    tmp[3] = func.ment(message.author, tmp[3], message.author.guild)
+                    tmp[3] = func.get_ctdid(tmp[3])
                     if 'e404' in tmp[3]:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                         x1 = 0
@@ -905,8 +1040,8 @@ fragment RecordFragment on UserRecord{{
                     f'https://services.cytoid.io/profile/{tmp[4]}')
                 check3a = json.loads(check3.content.decode('utf-8'))
                 if 'me' in tmp[4] or re.match(r'<[@!]+[0-9]+>', tmp[4]):
-                    tmp[4] = ment(message.author, tmp[4], message.author.guild)
-                    tmp[4] = get_ctdid(tmp[4])
+                    tmp[4] = func.ment(message.author, tmp[4], message.author.guild)
+                    tmp[4] = func.get_ctdid(tmp[4])
                     if 'e404' in tmp[4]:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                         x1 = 0
@@ -966,11 +1101,11 @@ fragment RecordFragment on UserRecord{{
                         p1 = requests.get('https://services.cytoid.io/graphql', params={"query": f"""query StudioAnalytics($uid: String = "{tmp[2]}") {{
   profile(uid: $uid) {{
     recentRecords(limit: 1) {{
-      ...RecordFragment
+      ...RecordFragfunc.ment
     }}
   }}
 }}
-fragment RecordFragment on UserRecord{{
+fragfunc.ment RecordFragfunc.ment on UserRecord{{
   chart {{
         difficulty
         type
@@ -995,11 +1130,11 @@ fragment RecordFragment on UserRecord{{
                         p2 = requests.get('https://services.cytoid.io/graphql', params={"query": f"""query StudioAnalytics($uid: String = "{tmp[3]}") {{
   profile(uid: $uid) {{
     recentRecords(limit: 1) {{
-      ...RecordFragment
+      ...RecordFragfunc.ment
     }}
   }}
 }}
-fragment RecordFragment on UserRecord{{
+fragfunc.ment RecordFragfunc.ment on UserRecord{{
   chart {{
         difficulty
         type
@@ -1024,11 +1159,11 @@ fragment RecordFragment on UserRecord{{
                         p3 = requests.get('https://services.cytoid.io/graphql', params={"query": f"""query StudioAnalytics($uid: String = "{tmp[4]}") {{
   profile(uid: $uid) {{
     recentRecords(limit: 1) {{
-      ...RecordFragment
+      ...RecordFragfunc.ment
     }}
   }}
 }}
-fragment RecordFragment on UserRecord{{
+fragfunc.ment RecordFragfunc.ment on UserRecord{{
   chart {{
         difficulty
         type
@@ -1125,228 +1260,24 @@ fragment RecordFragment on UserRecord{{
                         x1 = 0
                         await message.channel.send('Cytoid ID未正確輸入 (keyword error)')
                 if x1 == 1:
-                    work = write_ctdid(str(message.author), tmp[2])
+                    work = func.write_ctdid(str(message.author), tmp[2])
                     if 'e405' in work:
                         id = re.sub('e405：', "", work)
                         await message.channel.send(f'已經綁定了，你的Cytoid ID是{id} (already binded)')
                     elif 'e200' in work:
                         await message.channel.send('綁定成功！ (Success!)')
-
     if message.content.startswith('unbind'):
         tmp = message.content.split(" ", 5)
         if len(tmp) == 2:
             if tmp[1].startswith('ctd'):
                 x1 = 1
                 if x1 == 1:
-                    work = delete_ctdid(str(message.author))
+                    work = func.delete_ctdid(str(message.author))
                     if 'e404' in work:
                         await message.channel.send("無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)")
                     elif 'e200' in work:
                         await message.channel.send('解除綁定成功！ (Success!)')
-
-def img_circle(fpath, img_width):
-    x = img_width
-    r = int(x/2)
-
-    # turn src image to square with x width
-    img_src = fpath.convert("RGBA")
-    img_src = img_src.resize((x, x), Image.LANCZOS)
-
-    # create a new pinture which is used for return value
-    img_return = Image.new('RGBA', (x, x), (255, 255, 255, 0))
-
-    # create a white picture,alpha tunnuel is 100% transparent
-    img_white = Image.new('RGBA', (x, x), (255, 255, 255, 0))
-
-    # create the objects link to the pixel matrix of img
-    p_src = img_src.load()
-    p_return = img_return.load()
-    p_white = img_white.load()
-
-    # set the pixels of the return picture
-    for i in range(x):
-        for j in range(x):
-            lx = abs(i-r)
-            ly = abs(j-r)
-            l = (pow(lx, 2) + pow(ly, 2)) ** 0.5
-
-            if l < r:
-                p_return[i, j] = p_src[i, j]
-            if l > r:
-                p_return[i, j] = p_white[i, j]
-    return img_return
-
-
-remove_nota = u'[’·°–!\"#$%&\'()*+,-.\/:;<=>?@，。?★、…【】（）《》？“”‘’！\[\\\]^_`{|}~]+'
-remove_punctuation_map = dict((ord(char), None) for char in string.punctuation)
-
-
-def filter_str(sentence):
-    sentence = re.sub(remove_nota, '', sentence)
-    sentence = sentence.translate(remove_punctuation_map)
-    return sentence.strip()
-
-# 判断中日韩英
-
-
-def judge_language(s):
-    # s = unicode(s)   # python2需要将字符串转换为unicode编码，python3不需要
-    s = filter_str(s)
-    result = []
-    s = re.sub('[0-9]', '', s).strip()
-    # unicode english
-    re_words = re.compile(u"[a-zA-Z]")
-    res = re.findall(re_words, s)  # 查询出所有的匹配字符串
-    res2 = re.sub('^[a-zA-Z ]+$', '', s).strip()
-    if len(res2) <= 0:
-        return 'en'
-
-    # unicode chinese
-    re_words = re.compile(u"[\u4e00-\u9fa5]+")
-    res = re.findall(re_words, s)  # 查询出所有的匹配字符串
-    res2 = re.sub(u"[\u4e00-\u9fa5]+", '', s).strip()
-    if len(res) > 0:
-        result.append('zh')
-    if len(res2) <= 0:
-        return 'zh'
-
-    # unicode korean
-    re_words = re.compile(u"[\uac00-\ud7ff]+")
-    res = re.findall(re_words, s)  # 查询出所有的匹配字符串
-    res2 = re.sub(u"[\uac00-\ud7ff]+", '', s).strip()
-    if len(res) > 0:
-        result.append('ko')
-    if len(res2) <= 0:
-        return 'ko'
-
-    # unicode japanese katakana and unicode japanese hiragana
-    re_words = re.compile(u"[\u30a0-\u30ff\u3040-\u309f]+")
-    res = re.findall(re_words, s)  # 查询出所有的匹配字符串
-    res2 = re.sub(u"[\u30a0-\u30ff\u3040-\u309f]+", '', s).strip()
-    if len(res) > 0:
-        result.append('ja')
-    if len(res2) <= 0:
-        return 'ja'
-    return ','.join(result)
-
-
-def ment(m, user, g):
-    if re.match(r'<[@!&]+[0-9]+>', user):
-        id1 = re.findall('[0-9]+', user)
-        return g.get_member(int(id1[0]))
-    else:
-        return user
-
-
-def ment2(m, user, g):
-    a1 = 1
-    t = user
-    if a1 == 1:
-        q1 = re.findall(r'<[@!&]+[0-9]+>', user)
-        for i in range(len(q1)):
-            men = ment(m, q1[i], g)
-            t = user.replace(q1[i], f'@{men}')
-        return t
-
-
-def filter_emoji(desstr, restr=''):
-    # 过滤表情
-    try:
-        co = re.compile(u'[\U00010000-\U0010ffff]')
-    except re.error:
-        co = re.compile(u'[\uD800-\uDBFF][\uDC00-\uDFFF]')
-    return co.sub(restr, desstr)
-
-
-def emo(str):
-    if "ez" in str:
-        return "<:EZ_dy:1110475152568877066>"
-    if "hd" in str:
-        return "<:HD_dy:1110471797054390322>"
-    if "ex" in str:
-        return "<:EX_dy:1110471814490095689>"
-    if "zh" in str:
-        return "<:ZH_dy:1110841690673123399>"
-    if "en" in str:
-        return "<:EN_dy:1110841918956511283>"
-
-
-def get_ctdid(user):
-    with open("./member.txt", 'r') as b:
-        f = b.read()
-        str1 = f.split(",", 200)
-        key = 0
-        for i in range(len(str1)):
-            name1 = re.findall('[^\0]+#[0-9][0-9][0-9][0-9]', str1[i])
-            if str(user) in name1:
-                key = 1
-                id_ = str1[i].split(":", 2)
-                id = id_[1]
-        if key == 1:
-            return id
-        else:
-            return 'e404'
-    b.close()
-
-
-def write_ctdid(user, ctdid):
-    with open("./member.txt", 'r') as b:
-        f = b.read()
-        str1 = f.split(",", 200)
-        key = 0
-        for i in range(len(str1)):
-            name1 = re.findall('[^\0]+#[0-9][0-9][0-9][0-9]', str1[i])
-            if str(user) in name1:
-                key = 1
-                id_ = str1[i].split(":", 2)
-                id = id_[1]
-        if key == 1:
-            key2 = 0
-        else:
-            key2 = 1
-    b.close()
-    with open("./member.txt", 'a') as b1:
-        if key2 == 1:
-            new = ","+str(user)+":"+ctdid
-            b1.write(new)
-            return 'e200'
-        else:
-            return f'e405：{id}'
-    b1.close()
-
-
-def delete_ctdid(user):
-    with open("./member.txt", 'r') as b:
-        f = b.read()
-        str1 = f.split(",", 200)
-        key = 0
-        for i in range(len(str1)):
-            name1 = re.findall('[^\0]+#[0-9][0-9][0-9][0-9]', str1[i])
-            if str(user) in name1:
-                key = 1
-        if key == 1:
-            key2 = 1
-        else:
-            key2 = 0
-            return 'e404'
-    b.close()
-    with open("./member.txt", 'a') as b1:
-        if key2 == 1:
-            reg1 = f',{str(user)}:[^,]+'
-            del1 = re.sub(reg1, "", f)
-            b1.write(del1)
-            return 'e200'
-    b1.close()
-
-
-def say_txt(ctdid, user):
-    key2 = 1
-    with open("./say.txt", 'a') as b1:
-        if key2 == 1:
-            new = cutime+" | " + str(ctdid)+"說："+user+"\n"
-            b1.write(new)
-            return 'e200'
-    b1.close()
+    
 
 
 keep_alive.keep_alive()
