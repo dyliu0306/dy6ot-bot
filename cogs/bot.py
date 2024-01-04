@@ -57,6 +57,9 @@ async def timeout(view, msg):
 async def handle_error(interaction, error, item, ctx):
     cmd = ctx.invoked_with
     full_error = traceback.format_exception(error)  # type: ignore
+    print(full_error)
+    await ctx.send(text)
+    return
     with open("./text/full_error.txt", "w") as f:
         text = ""
         for i in range(len(full_error)):
