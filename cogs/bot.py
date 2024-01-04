@@ -68,7 +68,6 @@ class Main(Cog_Extension):
 
     @commands.Cog.listener()
     async def on_command_error(self, ctx, error):
-        func.del_cd("guess", ctx.channel.id)
         cmd = ctx.invoked_with
         full_error = traceback.format_exception(error)  # type: ignore
         if isinstance(error, commands.CommandNotFound):
@@ -81,6 +80,9 @@ class Main(Cog_Extension):
             await ctx.send(
                 "**You dont have the permissions for using this command**")
         else:
+            text = f"> **ERROR ID**:`{int(time.time())}`\n```Unknown Error at [{cmd}]:\n {error}```"
+            await ctx.send(text
+            return
             with open("./text/full_error.txt", "w") as f:
                 text = ""
                 for i in range(len(full_error)):
@@ -89,8 +91,7 @@ class Main(Cog_Extension):
             f.close()
             file = discord.File("./text/full_error.txt",
                                 filename="full_error.txt")
-            text = f"> **ERROR ID**:`{int(time.time())}`\n```Unknown Error at [{cmd}]:\n {error}```"
-            await ctx.send(text, file=file)
+            func.del_cd("guess", ctx.channel.id)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
