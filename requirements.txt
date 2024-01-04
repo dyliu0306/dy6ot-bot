@@ -15,4 +15,7 @@ python-dateutil
 multidict
 scipy
 fonttools
-
+flask
+threading
+os
+re
