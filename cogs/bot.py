@@ -58,18 +58,10 @@ async def handle_error(interaction, error, item, ctx):
     cmd = ctx.invoked_with
     full_error = traceback.format_exception(error)  # type: ignore
     print(full_error)
+    text = f"> **ERROR ID**:`{int(time.time())}`\n```Unknown Error at [{cmd}]:\n {error}```"
     await ctx.send(text)
     return
-    with open("./text/full_error.txt", "w") as f:
-        text = ""
-        for i in range(len(full_error)):
-            text += full_error[i]
-        f.write(text)
-    f.close()
-    file = discord.File("./text/full_error.txt",
-                        filename="full_error.txt")
-    text = f"> **ERROR ID**:`{int(time.time())}`\n```Unknown Error at [{cmd}]:\n {error}```"
-    await ctx.send(text, file=file)
+   
 
 
 class Main(Cog_Extension):
