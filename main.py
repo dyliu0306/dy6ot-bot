@@ -85,7 +85,7 @@ async def load_extensions():
 async def main():
     async with bot:
         await load_extensions()
-        await bot.start(os.getenv("DISCORD_TOKEN"))
+        await bot.start(os.environ["DISCORD_TOKEN"])
 
 
 keep_alive.keep_alive()
