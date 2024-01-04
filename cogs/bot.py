@@ -81,7 +81,7 @@ class Main(Cog_Extension):
                 "**You dont have the permissions for using this command**")
         else:
             text = f"> **ERROR ID**:`{int(time.time())}`\n```Unknown Error at [{cmd}]:\n {error}```"
-            await ctx.send(text
+            await ctx.send(text)
             return
             with open("./text/full_error.txt", "w") as f:
                 text = ""
