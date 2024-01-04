@@ -2,6 +2,9 @@ import os
 import asyncio
 import discord
 from discord.ext import commands
+import keep_alive
+import pytz
+import time
 import core1.func as func
 import core1.MainTask as MainTask
 import core1.coin as coin
@@ -82,7 +85,9 @@ async def load_extensions():
 async def main():
     async with bot:
         await load_extensions()
-        await bot.start("token")
+        await bot.start(os.getenv("DISCORD_TOKEN"))
 
 
-asyncio.run(main())
+keep_alive.keep_alive()
+if __name__ == "__main__":
+    asyncio.run(main())
