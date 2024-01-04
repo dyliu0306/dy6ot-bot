@@ -21,6 +21,8 @@ import os
 os.environ['MPLCONFIGDIR'] = os.getcwd() + "/configs/"
 
 
+
+
 def custom_randint(x, y):
     # 檢查 x 和 y 的差值是否大於等於 4
     if y - x >= 4:
@@ -424,7 +426,6 @@ def judge_language(s):
 
 def hack_txt(id):
     id = str(id)
-
     with open("./text/hack.txt", "rb") as hack_histroy_file:
         hack_histroy = hack_histroy_file.read().decode("utf-8")
         if id in hack_histroy:
@@ -504,69 +505,6 @@ def mentionReplacement(author,
     return member_name
 
 
-'''
-#將mention轉換成伺服器成員名字 (None則轉換成discord id名)
-# mentionReplacement(author, txt, isDisplayed=True)
-def ment4(m, user, g):
-    if re.match(r"<[@!&]+[0-9]+>", user):
-        id1 = re.findall("[0-9]+", user)
-        mb1 = g.get_member(int(id1[0]))
-        return mb1.display_name
-
-
-#將字段中的mention轉換成@<成員名字>
-# mentionReplacement(author, txt, isDisplayed=True, isRecording=True)
-def ment5(m, user, g):
-    a1 = 1
-    t = user
-    if a1 == 1:
-        q1 = re.findall(r"<[@!&]+[0-9]+>", user)
-        for i in range(len(q1)):
-            men = ment4(m, q1[i], g)
-            t = re.sub(q1[i], f"@{men}", t)
-        return t
-
-
-#偵測字段(user)中是否含有mention或"me"，有的話返回用戶discord.Member屬性
-#(m=message.author , user=message.content , g=messagr.guild)
-# mentionReplacement(author, txt)
-def ment(m, user, g):
-    if re.match(r"<[@!&]+[0-9]+>", user):
-        id1 = re.findall("[0-9]+", user)
-        return g.get_member(int(id1[0]))
-    elif "me" in user:
-        return m
-    else:
-        return user
-
-
-#將mention轉換成用戶discord id名
-# mentionReplacement(author, txt, isRecording=True)
-def ment2(m, user, g):
-    a1 = 1
-    t = user
-    if a1 == 1:
-        q1 = re.findall(r"<[@!&]+[0-9]+>", user)
-        for i in range(len(q1)):
-            men = ment(m, q1[i], g)
-            t = user.replace(q1[i], f"@{men}")
-        return t
-
-
-# mentionReplacement(author, txt, isBold=True)
-def ment3(m, user, g):
-    text = user
-    if re.findall(r"<@[0-9]+>", user):
-        id1 = re.findall("[0-9]+", user)
-        for i in range(len(id1)):
-            name = str(g.get_member(int(id1[i]))).split("#", 2)
-            text = re.sub(f"<@{id1[i]}>", f"**{name[0]}**", user)
-            user = text
-    return text
-
-'''
-
-
 def filter_emoji(desstr, restr=""):
     # 过滤表情
     try:
@@ -641,22 +579,6 @@ def get_cd(name, channelid, write=True):
     else:
         return True
 
-
-def get_cd_notkeep(name, channelid):
-    with open(f"./text/{name}_cd.txt", "r") as b:
-        f = b.read()
-        str1 = f.split(",")
-        key = 0
-        for i in range(len(str1)):
-            if str(channelid) == str1[i]:
-                key = 1
-        b.close()
-    if key == 1:
-        return False
-    else:
-        return True
-
-
 def write_cd(name, channelid):
     with open(f"./text/{name}_cd.txt", "a") as b1:
         new = "," + str(channelid)
@@ -680,47 +602,6 @@ def del_cd(name, channelid):
         b1.write(new)
     b1.close()
 
-
-def get_id(user, category="cytoid"):
-    with open("./text/member.json", "r") as b:
-        user = str(user)
-        f = b.read()
-        memberlist = json.loads(f)
-        if str(user) in memberlist.get(category, {}):
-            return memberlist[category][user]
-        else:
-            return "e404"
-    b.close()
-
-
-def write_id(user, id, category="cytoid"):
-    with open("./text/member.json", "r") as b:
-        user = str(user)
-        f = b.read()
-        memberlist = json.loads(f)
-        if str(user) in memberlist.get(category, {}):
-            return memberlist[category][user]
-    b.close()
-    with open("./text/member.json", "w") as b1:
-        memberlist[category][user] = id
-        json.dump(memberlist, b1, indent=2, ensure_ascii=False)
-        return "e200"
-    b1.close()
-
-
-def del_id(user, category="cytoid"):
-    with open("./text/member.json", "r") as b:
-        user = str(user)
-        f = b.read()
-        memberlist = json.loads(f)
-        if str(user) not in memberlist.get(category, {}):
-            return "e404"
-    b.close()
-    with open("./text/member.json", "w") as b1:
-        del memberlist[category][user]
-        json.dump(memberlist, b1, indent=2, ensure_ascii=False)
-        return "e200"
-    b1.close()
 
 
 def get_keep(text, say=True):

@@ -6,6 +6,7 @@ from fontTools.ttLib import TTFont
 from io import BytesIO
 import math
 import re
+import discord
 
 
 def getImage(image_url):
@@ -700,10 +701,14 @@ def generatePlayImg(player_id, isDebug=False):
 
     if isDebug:
         background_img.show()
+        file = None
     else:
-        background_img.save(file_name)
+        with BytesIO() as image_bytes:
+            background_img.save(image_bytes, format='PNG')
+            image_bytes.seek(0)
+            file = discord.File(fp=image_bytes, filename=file_name)
 
-    return file_name, level_id, date_object
+    return file, level_id, date_object
 
 
 def execute(player_id, isDebug=False):

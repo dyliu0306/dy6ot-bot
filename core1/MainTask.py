@@ -5,6 +5,7 @@ import core1.MostRecentPlay as MostRecentPlay
 import core1.mail as mail
 import os
 
+
 def checkHack(limit_level=14):
     is_hand_check = limit_level == 0
     white_list = [
@@ -39,7 +40,7 @@ def checkHack(limit_level=14):
         return None, None
 
     message_start = "**Cheater suspected detector:**\n\n"
-    message=[]
+    message = []
     embed_list = []
     mail_content = []
     for sus in sus_list:
@@ -70,7 +71,8 @@ def checkHack(limit_level=14):
     if len(embed_list) == 0:
         return None, None
     for mailadrres in [os.getenv("test")]:
-        mail.sendMail(mailadrres,"Cytoid 外挂侦测系统",f"嫌疑清单：<br>{'<br>'.join(message)}<br>{'<br>'.join(mail_content)}")
+        mail.sendMail(mailadrres, "Cytoid 外挂侦测系统",
+                      f"嫌疑清单：<br>{'<br>'.join(message)}<br>{'<br>'.join(mail_content)}")
     return f"{message_start}{''.join(message)}", embed_list
 
 
@@ -96,7 +98,6 @@ def replaceNadekoMention(message):
                                               message.content,
                                               isDisplayed=True,
                                               isRecording=True)
-    func.del_txt(message.author, str(replace_message))
     return f"系統偵測到Nadeko惡意標註訊息，予以刪除\n訊息內容：\n``` {replace_message}```"
 
 
@@ -148,6 +149,5 @@ def repeatMessage(txt_message, author):
 
 
 def generateRecentPlayPic(cytoid_id):
-    fileName, level_id, day_of_month = MostRecentPlay.execute(cytoid_id)
-    file = discord.File(fileName)
-    return file, fileName, level_id, day_of_month
+    img, level_id, day_of_month= MostRecentPlay.execute(cytoid_id)
+    return img, level_id, day_of_month
