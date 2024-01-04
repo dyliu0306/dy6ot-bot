@@ -16,6 +16,6 @@ multidict
 scipy
 fonttools
 flask
-threading
+threadpoolctl
 os
 re
