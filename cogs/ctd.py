@@ -291,7 +291,7 @@ class Ctd(Cog_Extension):
                 await ctx.send("此玩家未玩過任何關卡\nThis player has no record")
                 return
             loading_message = await ctx.send("Loading...")
-            img_file, file_name, level_id, date_object_of_record = MainTask.generateRecentPlayPic(
+            img_file, level_id, date_object_of_record = MainTask.generateRecentPlayPic(
                 checkA)
             if not level_id:
                 await ctx.send(func.ebt("norecord"))
@@ -326,7 +326,6 @@ class Ctd(Cog_Extension):
             )
             await ctx.send(embed=embed)
             await ctx.send(file=img_file)
-            os.remove(file_name)
             return
 
     @commands.command()

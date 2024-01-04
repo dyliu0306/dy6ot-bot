@@ -66,7 +66,32 @@ async def handle_error(interaction, error, item, ctx):
 
 class Main(Cog_Extension):
 
-    
+    @commands.Cog.listener()
+    async def on_command_error(self, ctx, error):
+        cmd = ctx.invoked_with
+        full_error = traceback.format_exception(error)  # type: ignore
+        if isinstance(error, commands.CommandNotFound):
+            pass
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send(
+                f"**請輸入正確的參數 (Please type in all require args.**)\n{func.ebt(cmd)}"
+            )
+        elif isinstance(error, commands.MissingPermissions):
+            await ctx.send(
+                "**You dont have the permissions for using this command**")
+        else:
+            text = f"> **ERROR ID**:`{int(time.time())}`\n```Unknown Error at [{cmd}]:\n {error}```"
+            await ctx.send(text)
+            return
+            with open("./text/full_error.txt", "w") as f:
+                text = ""
+                for i in range(len(full_error)):
+                    text += full_error[i]
+                f.write(text)
+            f.close()
+            file = discord.File("./text/full_error.txt",
+                                filename="full_error.txt")
+            func.del_cd("guess", ctx.channel.id)
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
@@ -209,216 +234,7 @@ class Main(Cog_Extension):
                     file = discord.File("photo/cache1.png",
                                         filename="RatingChart.png")
                     await message.channel.send(file=file)
-            elif len(tmp) == 6:
-                if tmp[1].startswith("pvp"):
-                    x1 = 1
-                    x3 = 1
-                    # code copyright belongs to akari-bot[github.com/Teahouse-Studios/akari-bot/blob/master/modules/cytoid/rating.py]
-                    check1 = requests.get(
-                        f"https://services.cytoid.io/profile/{tmp[2]}")
-                    check1a = json.loads(check1.content.decode("utf-8"))
-                    if "me" == tmp[2] or re.match(r"<[@!]+[0-9]+>", tmp[2]):
-                        # tmp[2] = func.ment(message.author, tmp[2], message.author.guild)
-                        tmp[2] = func.mentionReplacement(message.author,
-                                                         tmp[2],
-                                                         isId=True)
-                        tmp[2] = func.get_id(tmp[2])
-                        if "e404" in tmp[2]:
-                            await message.channel.send(
-                                "無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)"
-                            )
-                            x1 = 0
-                    elif "statusCode" in check1a:
-                        if check1a["statusCode"] == 404:
-                            x1 = 0
-                            await message.channel.send("玩家一Cytoid ID未正確輸入")
-                    check2 = requests.get(
-                        f"https://services.cytoid.io/profile/{tmp[3]}")
-                    check2a = json.loads(check2.content.decode("utf-8"))
-                    if "me" == tmp[3] or re.match(r"<[@!]+[0-9]+>", tmp[3]):
-                        # tmp[3] = func.ment(message.author, tmp[3], message.author.guild)
-                        tmp[3] = func.mentionReplacement(message.author,
-                                                         tmp[3],
-                                                         isId=True)
-                        tmp[3] = func.get_id(tmp[3])
-                        if "e404" in tmp[3]:
-                            await message.channel.send(
-                                "無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)"
-                            )
-                            x1 = 0
-                    elif "statusCode" in check2a:
-                        if check2a["statusCode"] == 404:
-                            x1 = 0
-                            await message.channel.send("玩家二Cytoid ID未正確輸入")
-                    check3 = requests.get(
-                        f"https://services.cytoid.io/profile/{tmp[4]}")
-                    check3a = json.loads(check3.content.decode("utf-8"))
-                    if "me" == tmp[4] or re.match(r"<[@!]+[0-9]+>", tmp[4]):
-                        # tmp[4] = func.ment(message.author, tmp[4], message.author.guild)
-                        tmp[4] = func.mentionReplacement(message.author,
-                                                         tmp[4],
-                                                         isId=True)
-                        tmp[4] = func.get_id(tmp[4])
-                        if "e404" in tmp[4]:
-                            await message.channel.send(
-                                "無註冊資料，使用`bind ctd <cytoid id>`綁定帳號 (You have not bound yet)"
-                            )
-                            x1 = 0
-                    elif "statusCode" in check3a:
-                        if check3a["statusCode"] == 404:
-                            x1 = 0
-                            await message.channel.send("玩家三Cytoid ID未正確輸入")
 
-                    # end
-                    if x1 == 1:
-                        check1 = requests.get(
-                            f"https://services.cytoid.io/profile/{tmp[2]}")
-                        check1a = json.loads(check1.content.decode("utf-8"))
-                        check2 = requests.get(
-                            f"https://services.cytoid.io/profile/{tmp[3]}")
-                        check2a = json.loads(check2.content.decode("utf-8"))
-                        check3 = requests.get(
-                            f"https://services.cytoid.io/profile/{tmp[4]}")
-                        check3a = json.loads(check2.content.decode("utf-8"))
-                        x2 = 1
-                        url = "https://services.cytoid.io/levels/" + tmp[5]
-                        res = requests.get(url)
-                        jsonstr = json.loads(res.content.decode("utf-8"))
-                        type = ""
-                        if jsonstr["duration"] >= 240:
-                            await message.channel.send(
-                                f'譜面時長超出上限 ({jsonstr["duration"]}秒)')
-                            x3 = 0
-                        if x3 >= 1:
-                            length = (jsonstr["duration"]) + 32
-                            if len(jsonstr["charts"]) > 2:
-                                if (jsonstr["charts"][0]["difficulty"] ==
-                                        jsonstr["charts"][1]["difficulty"] ==
-                                        jsonstr["charts"][2]["difficulty"]):
-                                    type = "extreme"
-                                elif (jsonstr["charts"][0]["difficulty"] !=
-                                      jsonstr["charts"][1]["difficulty"] !=
-                                      jsonstr["charts"][2]["difficulty"]):
-                                    for i in range(3):
-                                        if (max(
-                                                jsonstr["charts"][0]
-                                            ["difficulty"],
-                                                jsonstr["charts"][1]
-                                                    ["difficulty"],
-                                                jsonstr["charts"][2]
-                                                ["difficulty"],
-                                        ) == jsonstr["charts"][i]["difficulty"]
-                                            ):
-                                            type = jsonstr["charts"][i]["type"]
-                                            break
-                                else:
-                                    for i in range(3):
-                                        if (max(
-                                                jsonstr["charts"][0]
-                                            ["difficulty"],
-                                                jsonstr["charts"][1]
-                                                    ["difficulty"],
-                                                jsonstr["charts"][2]
-                                                ["difficulty"],
-                                        ) == jsonstr["charts"][i]["difficulty"]
-                                            ):
-                                            type = jsonstr["charts"][i]["type"]
-                                            break
-                            elif len(jsonstr["charts"]) > 1:
-                                if (jsonstr["charts"][0]["difficulty"] ==
-                                        jsonstr["charts"][1]["difficulty"]):
-                                    for i in range(2):
-                                        if max(
-                                                ord(jsonstr["charts"][0]
-                                                    ["type"][2]),
-                                                ord(jsonstr["charts"][1]
-                                                    ["type"][2]),
-                                        ) == ord(jsonstr["charts"][i]["type"]
-                                                 [2]):
-                                            type = jsonstr["charts"][i]["type"]
-                                            break
-                                elif (jsonstr["charts"][0]["difficulty"] !=
-                                      jsonstr["charts"][1]["difficulty"]):
-                                    for i in range(2):
-                                        if (max(
-                                                jsonstr["charts"][0]
-                                            ["difficulty"],
-                                                jsonstr["charts"][1]
-                                                    ["difficulty"],
-                                        ) == jsonstr["charts"][i]["difficulty"]
-                                            ):
-                                            type = jsonstr["charts"][i]["type"]
-                                            break
-                            else:
-                                type = jsonstr["charts"][0]["type"]
-                            await message.channel.send(f"請三方遊玩{type}難度")
-                            user1 = CytoidData.getUserMostRecentPlay(tmp[2])
-                            user2 = CytoidData.getUserMostRecentPlay(tmp[3])
-                            user3 = CytoidData.getUserMostRecentPlay(tmp[4])
-                            score1 = user1["score"]
-                            score2 = user2["score"]
-                            score3 = user3["score"]
-                            acc1 = user1["accuracy"]
-                            acc2 = user2["accuracy"]
-                            acc3 = user3["accuracy"]
-                            perfect1 = user1["details"]["perfect"]
-                            great1 = user1["details"]["great"]
-                            good1 = user1["details"]["good"]
-                            bad1 = user1["details"]["bad"]
-                            miss1 = user1["details"]["miss"]
-                            perfect3 = user3["details"]["perfect"]
-                            great3 = user3["details"]["great"]
-                            good3 = user3["details"]["good"]
-                            bad3 = user3["details"]["bad"]
-                            miss3 = user3["details"]["miss"]
-                            perfect2 = user2["details"]["perfect"]
-                            great2 = user2["details"]["great"]
-                            good2 = user2["details"]["good"]
-                            bad2 = user2["details"]["bad"]
-                            miss2 = user2["details"]["miss"]
-                            notes1 = user1["chart"]["notesCount"]
-                            notes2 = user2["chart"]["notesCount"]
-                            notes3 = user3["chart"]["notesCount"]
-                            num1a = 0
-                            if miss1 > 0:
-                                num1a = 1 / math.sqrt(miss1 / 2)
-                            num2a = 0
-                            if miss2 > 0:
-                                num2a = 1 / math.sqrt(miss2 / 2)
-                            num3a = 0
-                            if miss3 > 0:
-                                num3a = 1 / math.sqrt(miss3 / 2)
-                            num1b = 0
-                            if great1 > 0:
-                                num1b = ((notes1 * acc1) - perfect1 -
-                                         (good1 * 0.3)) / great1
-                            num2b = 0
-                            if great2 > 0:
-                                num2b = ((notes2 * acc2) - perfect2 -
-                                         (good2 * 0.3)) / great2
-                            num3b = 0
-                            if great3 > 0:
-                                num3b = ((notes3 * acc3) - perfect3 -
-                                         (good3 * 0.3)) / great3
-                            total1 = (
-                                (((miss1**2) * (num1a)) /
-                                 (math.log(notes1, 50)**3) + 0.6 * miss1) *
-                                (-1) + (bad1 * (-0.6)) + (good1 * (-0.1)) +
-                                (num1b - 0.2) + (perfect1 * 0.8))
-                            total2 = (
-                                (((miss2**2) * (num2a)) /
-                                 (math.log(notes2, 50)**3) + 0.6 * miss2) *
-                                (-1) + (bad2 * (-0.6)) + (good2 * (-0.1)) +
-                                (num2b - 0.2) + (perfect2 * 0.8))
-                            total3 = (
-                                (((miss3**2) * (num3a)) /
-                                 (math.log(notes3, 50)**3) + 0.6 * miss3) *
-                                (-1) + (bad3 * (-0.6)) + (good3 * (-0.1)) +
-                                (num3b - 0.2) + (perfect3 * 0.8))
-
-                            await message.channel.send(
-                                f".....................\n{tmp[2]}的加權總分是：{format(total1,'.3f')}\n分數：{score1}   acc：{format(acc1*100,'.3f')}%\n{perfect1}P | {great1}Gr | {good1}G | {bad1}B | {miss1}M\n.....................\n{tmp[3]}的加權總分是：{format(total2,'.3f')}\n分數：{score2}   acc：{format(acc2 *100,'.3f')}%\n{perfect2}P | {great2}Gr | {good2}G | {bad2}B | {miss2}M\n.....................\n{tmp[4]}的加權總分是：{format(total3,'.3f')}\n分數：{score3}   acc：{format(acc3*100,'.3f')}%\n{perfect3}P | {great3}Gr | {good3}G | {bad3}B | {miss3}M\n"
-                            )
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, message):
